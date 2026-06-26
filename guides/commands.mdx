@@ -1,0 +1,77 @@
+---
+title: "Comandos do chat"
+description: "Comandos disponíveis dentro do chat público e do painel de atendimento."
+---
+
+Comandos são atalhos digitados com <code>/</code> no chat. Eles podem ser
+nativos da Lineup ou depender de integrações externas.
+
+## Comandos nativos
+
+<CardGroup cols={2}>
+  <Card title="/ajuda" icon="circle-question">
+    Mostra os comandos disponíveis no ticket.
+  </Card>
+  <Card title="/resumo" icon="file-lines">
+    Gera um resumo interno do atendimento para troca de turno.
+  </Card>
+  <Card title="/status" icon="signal">
+    Mostra estado do ticket, participantes e permissões relevantes.
+  </Card>
+  <Card title="/renomearchat nome:..." icon="pen-to-square">
+    Troca o nome do chat para um titulo humano, como pedido, assunto ou cliente.
+  </Card>
+  <Card title="/privar" icon="lock">
+    Bloqueia novas entradas pelo link público.
+  </Card>
+  <Card title="/desprivar" icon="unlock">
+    Permite novas entradas pelo link público novamente.
+  </Card>
+  <Card title="/suspender" icon="pause">
+    Suspende o ticket e impede mensagens do cliente.
+  </Card>
+  <Card title="/reabrir" icon="rotate-left">
+    Reabre um ticket suspenso.
+  </Card>
+  <Card title="/excluirticket" icon="trash">
+    Exclui o ticket. O transcript pode ser gerado antes da exclusão.
+  </Card>
+</CardGroup>
+
+## GOAT Pay
+
+<CardGroup cols={2}>
+  <Card title="/gerarpix valor:10" icon="qrcode">
+    Cria uma cobrança PIX pela GOAT Pay e envia o QR Code no chat.
+  </Card>
+  <Card title="/consultarpix id:..." icon="magnifying-glass">
+    Consulta uma cobrança PIX pelo ID da transação ou externalReference.
+  </Card>
+</CardGroup>
+
+<Info>
+  Comandos GOAT Pay exigem chave configurada no workspace. Na interface, eles
+  aparecem com a tag laranja <strong>GOAT PAY</strong>.
+</Info>
+
+## Onde configurar
+
+Configure em <strong>Dashboard → Inbox → Comandos</strong>. O Discord Plugin
+usa os comandos definidos pela Inbox principal.
+
+## Permissões
+
+<AccordionGroup>
+  <Accordion title="Quem pode executar comandos sensíveis?">
+    Apenas atendentes com permissão de gerenciar tickets ou permissões
+    equivalentes do workspace.
+  </Accordion>
+  <Accordion title="Cliente pode usar comandos?">
+    Cliente pode ver comandos públicos quando liberados, mas ações sensíveis
+    continuam protegidas.
+  </Accordion>
+  <Accordion title="Comandos disparam IA?">
+    Comandos nativos podem gerar mensagens de sistema. Mensagens comuns de
+    cliente ainda podem disparar a IA se ela estiver ativa.
+  </Accordion>
+</AccordionGroup>

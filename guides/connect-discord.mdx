@@ -1,0 +1,68 @@
+---
+title: "Conectar o Discord Plugin"
+description: "Transforme um bot Discord em canal de entrada da Inbox."
+---
+
+## O que você precisa
+
+<CardGroup cols={3}>
+  <Card title="Bot Token" icon="key">
+    Copie na seção Bot do Discord Developer Portal.
+  </Card>
+  <Card title="Public Key" icon="shield">
+    Copie em General Information. Não use Client Secret.
+  </Card>
+  <Card title="Inbox" icon="inbox">
+    Escolha a Inbox que receberá os tickets abertos pelo Discord.
+  </Card>
+</CardGroup>
+
+## Passo a passo
+
+<Steps>
+  <Step title="Abra Plugins na Inbox">
+    No dashboard, entre na Inbox e clique em Plugins.
+  </Step>
+  <Step title="Cole as credenciais">
+    Informe Bot Token e Public Key. A Lineup valida os campos antes de
+    registrar.
+  </Step>
+  <Step title="A API configura o endpoint">
+    A Lineup chama a API do Discord para atualizar
+    <code>interactions_endpoint_url</code> da aplicação.
+  </Step>
+  <Step title="Configure o plugin">
+    Depois de conectar, clique em <strong>Configurar Bot</strong> para abrir a visão
+    do Discord Plugin e ajustar o canal de entrada.
+  </Step>
+</Steps>
+
+## Como a documentação trata o bot
+
+<AccordionGroup>
+  <Accordion title="Rotas de conexão">
+    As rotas de conexão do plugin ficam fora de <code>/v1</code> e usam sessão
+    da Lineup:
+
+    ```http
+    GET /inboxes/:inboxId/plugins/discord
+    POST /inboxes/:inboxId/plugins/discord
+    POST /inboxes/:inboxId/plugins/discord/:botId/configure
+    ```
+
+  </Accordion>
+  <Accordion title="API p�blica">
+    A API p�blica exp�e <code>GET /v1/bots</code> para listar plugins Discord
+    conectados. Depois que um ticket existe na Inbox, use as rotas da Inbox
+    para mensagens, participantes, transcript e ferramentas.
+  </Accordion>
+  <Accordion title="Interaction endpoint">
+    A Lineup mantém o endpoint correto e um worker da API verifica a
+    configuração periodicamente.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+  Nunca conecte o bot de login OAuth da Lineup como bot de atendimento. Use a
+  aplicação Discord que realmente receberá comandos, botões e interações.
+</Warning>

@@ -1,0 +1,83 @@
+---
+title: "Criar tickets pela API"
+description: "Abra um atendimento sem depender de bot ou servidor Discord."
+---
+
+Este é o fluxo principal da Lineup: seu produto cria o ticket e entrega o link
+de chat ao cliente.
+
+## Payload recomendado
+
+<ParamField body="customerId" type="string">
+  Identificador estável do cliente no seu sistema.
+</ParamField>
+
+<ParamField body="customerName" type="string">
+  Nome exibido para a equipe e no chat.
+</ParamField>
+
+<ParamField body="customerEmail" type="string">
+  E-mail do cliente. Útil para procurar atendimentos depois.
+</ParamField>
+
+<ParamField body="subject" type="string">
+  Assunto curto do ticket.
+</ParamField>
+
+<ParamField body="category" type="string">
+  Categoria operacional, como <code>Financeiro</code>, <code>Entrega</code> ou
+  <code>Técnico</code>.
+</ParamField>
+
+<ParamField body="reason" type="string">
+  Motivo informado pelo cliente.
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  JSON livre com dados úteis: pedido, plano, conta, origem, URL interna ou flags
+  do seu sistema.
+</ParamField>
+
+## Exemplo completo
+
+```bash
+curl -X POST "https://api.lnup.pro/v1/inboxes/inbox_123/tickets" \
+  -H "Authorization: Bearer lup_seu_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customerId": "cus_9281",
+    "customerName": "Marina",
+    "customerEmail": "marina@exemplo.com",
+    "subject": "Pedido não entregue",
+    "category": "Logística",
+    "reason": "Meu pedido 12312312312312312 não foi entregue.",
+    "metadata": {
+      "orderId": "12312312312312312",
+      "plan": "Pro"
+    }
+  }'
+```
+
+## Resposta
+
+<ResponseField name="ticket" type="object">
+  Ticket criado dentro da Inbox.
+</ResponseField>
+
+<ResponseField name="chatUrl" type="string">
+  Link público que o cliente deve abrir.
+</ResponseField>
+
+<ResponseField name="customerAccessToken" type="string">
+  Token temporário de acesso do cliente. Guarde apenas se precisar montar a URL
+  manualmente.
+</ResponseField>
+
+<ResponseField name="accessExpiresAt" type="string">
+  Data de expiração do token temporário.
+</ResponseField>
+
+<Tip>
+  Para clientes logados no seu produto, salve o <code>ticket._id</code> ao lado
+  do pedido, assinatura ou solicitação de suporte.
+</Tip>

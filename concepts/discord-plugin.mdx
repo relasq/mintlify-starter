@@ -1,0 +1,90 @@
+---
+title: "Discord Plugin"
+description: "Como o bot Discord funciona como integração de entrada da Inbox."
+---
+
+O bot Discord não é um produto separado. Ele é um plugin conectado a uma Inbox:
+o Discord abre tickets, mas atendimento, equipe, cargos, IA, comandos,
+auditoria, mensagens e ferramentas ficam no workspace principal.
+
+<Note>
+  Na API pública, <code>/v1/bots</code> existe apenas para listar plugins Discord
+  conectados por compatibilidade. Use as rotas da Inbox para operar tickets e
+  mensagens.
+</Note>
+
+## O que muda
+
+<CardGroup cols={2}>
+  <Card title="Entrada pelo Discord" icon="discord">
+    O bot recebe interações, botões e mensagens configuradas para abrir tickets
+    dentro da Inbox.
+  </Card>
+  <Card title="Operação na Inbox" icon="inbox">
+    Tickets, participantes, IA, comandos, ferramentas, equipe e auditoria ficam
+    na Inbox, sem duplicar painel.
+  </Card>
+</CardGroup>
+
+## Como conectar
+
+<Steps>
+  <Step title="Abra a Inbox">Vá em Dashboard > Inbox > Plugins.</Step>
+  <Step title="Conecte o Discord">
+    Informe o Bot Token e a Public Key da aplicação que receberá interações.
+  </Step>
+  <Step title="A Lineup registra o endpoint">
+    A API configura o <code>interactions_endpoint_url</code> no Discord e valida
+    assinatura, PING e URL pública.
+  </Step>
+  <Step title="Configure o bot">
+    Depois de conectar, clique em <strong>Configurar Bot</strong> para ajustar
+    servidores, mensagens e configurações específicas do Discord.
+  </Step>
+</Steps>
+
+## Rotas relacionadas
+
+<Tabs>
+  <Tab title="Dashboard">
+    Estas rotas usam sessão da Lineup, não token <code>lup_</code>.
+
+    ```http
+    GET /inboxes/:inboxId/plugins/discord
+    POST /inboxes/:inboxId/plugins/discord
+    POST /inboxes/:inboxId/plugins/discord/:botId/configure
+    DELETE /inboxes/:inboxId/plugins/discord/:botId
+    ```
+  </Tab>
+  <Tab title="API pública">
+    A API pública expõe apenas a listagem de plugins Discord conectados. Para
+    tickets, mensagens, participantes e ferramentas, use as rotas da Inbox.
+
+    ```http
+    GET /v1/bots
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+  O Bot Token do Discord nunca deve ser usado como token da API pública da
+  Lineup. Para integrações externas, use apenas tokens <code>lup_</code>.
+</Warning>
+
+## Quando usar o Discord Plugin
+
+<CardGroup cols={2}>
+  <Card title="Comunidades" icon="users">
+    Abra tickets a partir de mensagens, botões e canais de um servidor.
+  </Card>
+  <Card title="Suporte em servidor" icon="server">
+    A equipe já atende no Discord, mas precisa de histórico, permissões e chat
+    público fora do canal.
+  </Card>
+  <Card title="Mensagens com botão" icon="message">
+    Publique mensagens configuradas com botão de abrir ticket.
+  </Card>
+  <Card title="Método de entrada" icon="plug">
+    Use o Discord para abrir tickets na Inbox sem duplicar a operação.
+  </Card>
+</CardGroup>

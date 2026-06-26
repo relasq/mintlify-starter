@@ -1,0 +1,93 @@
+---
+title: "Inbox"
+description: "A Inbox é o workspace principal da Lineup."
+---
+
+Uma Inbox é uma caixa de entrada programável. Ela recebe tickets criados pelo
+seu produto, entrega um link público de chat para o cliente e organiza a
+operação da equipe dentro da Lineup.
+
+<CardGroup cols={2}>
+  <Card title="Criada pelo seu backend" icon="code">
+    A sua API chama a Lineup e envia os dados que tiver: nome, e-mail, assunto,
+    categoria, motivo e metadata.
+  </Card>
+  <Card title="Atendida pela equipe" icon="headset">
+    A equipe usa a dashboard para responder, ver histórico, privar tickets,
+    excluir tickets, revisar auditoria e aplicar permissões do workspace.
+  </Card>
+  <Card title="Independente de Discord" icon="inbox">
+    A Inbox funciona sem servidor Discord, sem bot e sem canal.
+  </Card>
+  <Card title="Extensível por plugins" icon="plug">
+    Discord entra como plugin quando você quer abrir tickets a partir de
+    servidores, botões e mensagens do Discord.
+  </Card>
+</CardGroup>
+
+## O que vive em uma Inbox
+
+<Tabs>
+  <Tab title="Tickets">
+    Tickets criados pela API, pelo chat público ou por plugins. Cada ticket tem
+    participantes, mensagens, anexos, status, privacidade e ações de
+    atendimento.
+  </Tab>
+  <Tab title="Equipe e cargos">
+    Pessoas vinculadas à Inbox recebem cargos próprios. Cada cargo define se a
+    pessoa pode ver tickets, responder, gerenciar tickets, excluir, alterar
+    configurações, gerenciar equipe ou administrar API.
+  </Tab>
+  <Tab title="IA e ferramentas">
+    O atendente virtual, o prompt, os modos de resposta, as ferramentas externas
+    e as aprovações de uso vivem na Inbox.
+  </Tab>
+  <Tab title="Comandos">
+    Comandos como <code>/resumo</code>, <code>/status</code> e integrações como
+    GOAT Pay são configurados no workspace principal e aparecem no chat quando
+    permitidos.
+  </Tab>
+  <Tab title="Auditoria">
+    Eventos sensíveis, mudanças de ticket, usos de ferramenta, exclusões e
+    ações de equipe ficam rastreáveis para operação.
+  </Tab>
+  <Tab title="Plugins">
+    Plugins adicionam novos métodos de entrada. O Discord Plugin conecta um bot
+    à Inbox, mas a operação continua centralizada no workspace.
+  </Tab>
+</Tabs>
+
+## Fluxo de um ticket de Inbox
+
+<Steps>
+  <Step title="Seu produto cria o ticket">
+    Use <code>POST /v1/inboxes/:inboxId/tickets</code>. O payload pode ser
+    mínimo ou rico, dependendo dos dados disponíveis.
+  </Step>
+  <Step title="A Lineup devolve o chat">
+    A resposta traz <code>chatUrl</code>, <code>ticket._id</code>,
+    <code>customerAccessToken</code> e <code>accessExpiresAt</code>.
+  </Step>
+  <Step title="O cliente entra no link">
+    O link público abre em <code>go.lnup.pro</code> ou no domínio customizado da
+    conta.
+  </Step>
+  <Step title="A equipe atende">
+    Respostas podem sair da dashboard, da API ou do próprio chat, dependendo do
+    papel de quem está conectado.
+  </Step>
+</Steps>
+
+<AccordionGroup>
+  <Accordion title="A Inbox substitui o bot Discord?">
+    Não. A Inbox é o workspace principal. O Discord Plugin conecta um bot a essa
+    Inbox quando você quer abrir tickets dentro de servidores Discord.
+  </Accordion>
+  <Accordion title="Uma conta pode ter várias Inboxes?">
+    Sim. Use Inboxes separadas para produtos, times ou ambientes diferentes.
+  </Accordion>
+  <Accordion title="O link público sempre usa go.lnup.pro?">
+    Por padrão, sim. Se a conta tiver um domínio verificado, a Inbox pode gerar
+    novos links usando esse domínio.
+  </Accordion>
+</AccordionGroup>

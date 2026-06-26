@@ -1,0 +1,678 @@
+openapi: 3.1.0
+info:
+  title: Lineup API
+  version: "1.0.0"
+  description: |
+    API pública da Lineup. A Inbox é o produto principal; o Discord aparece como plugin conectado à Inbox.
+servers:
+  - url: https://api.lnup.pro
+    description: Produção
+  - url: http://localhost:3001
+    description: Desenvolvimento local
+security:
+  - bearerAuth: []
+tags:
+  - name: Core
+    description: Recursos principais da conta.
+  - name: Inbox Tickets
+    description: Tickets criados diretamente pela API da Inbox.
+  - name: Inbox Messages
+    description: Mensagens e transcripts de tickets da Inbox.
+  - name: Inbox AI Tools
+    description: Aprovação e auditoria de ferramentas pedidas pela IA.
+  - name: Discord Plugin
+    description: Listagem de bots Discord conectados como plugin da Inbox.
+  - name: Public Chat
+    description: Rotas públicas usadas pelo frontend do chat.
+paths:
+  /v1/inboxes:
+    get:
+      operationId: listInboxes
+      tags: [Core]
+      summary: Listar Inboxes
+      description: Lista as Inboxes acessíveis pela conta dona do token.
+      responses:
+        "200":
+          description: Lista de Inboxes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Inbox"
+  /v1/bots:
+    get:
+      operationId: listDiscordPlugins
+      tags: [Discord Plugin]
+      summary: Listar Discord Plugins
+      description: Lista bots Discord acessíveis. O path permanece /v1/bots por compatibilidade, mas o produto trata esses bots como plugins da Inbox.
+      responses:
+        "200":
+          description: Lista de plugins Discord.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DiscordPlugin"
+  /v1/inboxes/{inboxId}/tickets:
+    parameters:
+      - $ref: "#/components/parameters/InboxId"
+    get:
+      operationId: listInboxTickets
+      tags: [Inbox Tickets]
+      summary: Listar tickets da Inbox
+      responses:
+        "200":
+          description: Tickets da Inbox.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Ticket"
+    post:
+      operationId: createInboxTicket
+      tags: [Inbox Tickets]
+      summary: Criar ticket na Inbox
+      description: Cria um atendimento sem depender de Discord e retorna o link público do chat.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateInboxTicketInput"
+            examples:
+              default:
+                value:
+                  customerId: cliente_123
+                  customerName: Maria
+                  customerEmail: maria@exemplo.com
+                  subject: Dúvida sobre cobrança
+                  category: Financeiro
+                  reason: Preciso entender uma cobrança recente.
+                  metadata:
+                    orderId: pedido_456
+      responses:
+        "201":
+          description: Ticket criado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateTicketResponse"
+  /v1/inboxes/{inboxId}/tickets/{ticketId}:
+    parameters:
+      - $ref: "#/components/parameters/InboxId"
+      - $ref: "#/components/parameters/TicketId"
+    get:
+      operationId: getInboxTicket
+      tags: [Inbox Tickets]
+      summary: Consultar ticket da Inbox
+      responses:
+        "200":
+          description: Ticket.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+    patch:
+      operationId: updateInboxTicket
+      tags: [Inbox Tickets]
+      summary: Atualizar ticket da Inbox
+      description: Atualiza nome, status, arquivamento, privacidade e IA do ticket.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateInboxTicketInput"
+      responses:
+        "200":
+          description: Ticket atualizado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+    delete:
+      operationId: deleteInboxTicket
+      tags: [Inbox Tickets]
+      summary: Excluir ticket da Inbox
+      responses:
+        "200":
+          description: Ticket excluído.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+  /v1/inboxes/{inboxId}/tickets/{ticketId}/messages:
+    parameters:
+      - $ref: "#/components/parameters/InboxId"
+      - $ref: "#/components/parameters/TicketId"
+    get:
+      operationId: listInboxMessages
+      tags: [Inbox Messages]
+      summary: Listar mensagens da Inbox
+      responses:
+        "200":
+          description: Mensagens do ticket.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChatMessage"
+    post:
+      operationId: createInboxMessage
+      tags: [Inbox Messages]
+      summary: Enviar mensagem na Inbox
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMessageInput"
+      responses:
+        "201":
+          description: Mensagem criada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatMessage"
+  /v1/inboxes/{inboxId}/tickets/{ticketId}/transcript:
+    parameters:
+      - $ref: "#/components/parameters/InboxId"
+      - $ref: "#/components/parameters/TicketId"
+    get:
+      operationId: downloadInboxTranscript
+      tags: [Inbox Messages]
+      summary: Baixar transcript da Inbox
+      responses:
+        "200":
+          description: Documento HTML.
+          content:
+            text/html:
+              schema:
+                type: string
+  /v1/inboxes/{inboxId}/tickets/{ticketId}/tool-requests:
+    parameters:
+      - $ref: "#/components/parameters/InboxId"
+      - $ref: "#/components/parameters/TicketId"
+    get:
+      operationId: listInboxToolRequests
+      tags: [Inbox AI Tools]
+      summary: Listar solicitações de ferramentas da Inbox
+      responses:
+        "200":
+          description: Solicitações de ferramentas.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ToolRequest"
+  /v1/inboxes/{inboxId}/tickets/{ticketId}/tool-requests/{requestId}/approve:
+    parameters:
+      - $ref: "#/components/parameters/InboxId"
+      - $ref: "#/components/parameters/TicketId"
+      - $ref: "#/components/parameters/RequestId"
+    post:
+      operationId: approveInboxToolRequest
+      tags: [Inbox AI Tools]
+      summary: Aprovar ferramenta da Inbox
+      responses:
+        "200":
+          description: Solicitação atualizada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToolRequest"
+  /v1/inboxes/{inboxId}/tickets/{ticketId}/tool-requests/{requestId}/reject:
+    parameters:
+      - $ref: "#/components/parameters/InboxId"
+      - $ref: "#/components/parameters/TicketId"
+      - $ref: "#/components/parameters/RequestId"
+    post:
+      operationId: rejectInboxToolRequest
+      tags: [Inbox AI Tools]
+      summary: Rejeitar ferramenta da Inbox
+      responses:
+        "200":
+          description: Solicitação atualizada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToolRequest"
+  /chat/tickets:
+    get:
+      operationId: listPublicChatTickets
+      tags: [Public Chat]
+      summary: Listar tickets salvos neste navegador
+      security: []
+      responses:
+        "200":
+          description: Tickets públicos salvos por cookie.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PublicChatTicket"
+  /chat/{ticketId}/session:
+    parameters:
+      - $ref: "#/components/parameters/TicketId"
+    get:
+      operationId: getPublicChatSession
+      tags: [Public Chat]
+      summary: Carregar sessão pública do chat
+      security: []
+      responses:
+        "200":
+          description: Sessão do chat.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicChatSession"
+  /chat/{ticketId}/anonymous:
+    parameters:
+      - $ref: "#/components/parameters/TicketId"
+    post:
+      operationId: createAnonymousChatSession
+      tags: [Public Chat]
+      summary: Continuar como anônimo
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+      responses:
+        "200":
+          description: Cookie de sessão criado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+  /chat/{ticketId}/access:
+    parameters:
+      - $ref: "#/components/parameters/TicketId"
+    post:
+      operationId: redeemChatAccess
+      tags: [Public Chat]
+      summary: Resgatar token temporário de acesso
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+      responses:
+        "200":
+          description: Cookie de sessão criado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: lup token
+  parameters:
+    InboxId:
+      name: inboxId
+      in: path
+      required: true
+      schema:
+        type: string
+    BotId:
+      name: botId
+      in: path
+      required: true
+      schema:
+        type: string
+    TicketId:
+      name: ticketId
+      in: path
+      required: true
+      schema:
+        type: string
+    RequestId:
+      name: requestId
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    Inbox:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        customDomainHost:
+          type: [string, "null"]
+    DiscordPlugin:
+      type: object
+      properties:
+        id:
+          type: string
+        inboxId:
+          type: [string, "null"]
+        name:
+          type: string
+        status:
+          type: string
+          enum: [pending, active, error]
+        applicationId:
+          type: string
+        interactionsEndpointUrl:
+          type: string
+    Ticket:
+      type: object
+      properties:
+        _id:
+          type: string
+        workspaceType:
+          type: string
+          enum: [inbox, discord]
+        botId:
+          type: [string, "null"]
+        inboxId:
+          type: [string, "null"]
+        title:
+          type: string
+        reason:
+          type: string
+        status:
+          type: string
+          enum: [open, suspended, closed]
+        customerEmail:
+          type: [string, "null"]
+        category:
+          type: [string, "null"]
+        metadata:
+          type: object
+          additionalProperties: true
+        participants:
+          type: array
+          items:
+            $ref: "#/components/schemas/Participant"
+        messageCount:
+          type: integer
+        virtualAgentEnabled:
+          type: boolean
+        isPrivate:
+          type: boolean
+        archivedAt:
+          type: [string, "null"]
+        deletedAt:
+          type: [string, "null"]
+    Participant:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        avatarUrl:
+          type: [string, "null"]
+        role:
+          type: string
+          enum: [customer, agent, guest]
+    ChatMessage:
+      type: object
+      properties:
+        _id:
+          type: string
+        authorId:
+          type: string
+        authorName:
+          type: string
+        authorRole:
+          type: string
+          enum: [customer, agent, guest, system]
+        authorAvatarUrl:
+          type: [string, "null"]
+        content:
+          type: string
+        attachments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Attachment"
+        readBy:
+          type: array
+          items:
+            type: string
+    Attachment:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        size:
+          type: number
+        dataUrl:
+          type: string
+    CreateInboxTicketInput:
+      type: object
+      properties:
+        customerId:
+          type: string
+          maxLength: 80
+        customerName:
+          type: string
+          maxLength: 80
+        customerEmail:
+          type: string
+          maxLength: 160
+          format: email
+        customerAvatarUrl:
+          type: string
+          maxLength: 1000
+        subject:
+          type: string
+          maxLength: 120
+        category:
+          type: string
+          maxLength: 80
+        reason:
+          type: string
+          maxLength: 1000
+        metadata:
+          type: object
+          additionalProperties: true
+    CreateDiscordTicketInput:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 120
+        reason:
+          type: string
+          maxLength: 1000
+        guildId:
+          type: string
+          maxLength: 80
+        guildName:
+          type: string
+          maxLength: 120
+        customerId:
+          type: string
+          maxLength: 80
+        customerName:
+          type: string
+          maxLength: 80
+        customerAvatarUrl:
+          type: string
+          maxLength: 1000
+    UpdateInboxTicketInput:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 2
+          maxLength: 80
+        status:
+          type: string
+          enum: [open, suspended, closed]
+        archived:
+          type: boolean
+        isPrivate:
+          type: boolean
+        virtualAgentEnabled:
+          type: boolean
+    UpdateDiscordTicketInput:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 2
+          maxLength: 80
+        status:
+          type: string
+          enum: [open, suspended, closed]
+        archived:
+          type: boolean
+        isPrivate:
+          type: boolean
+        virtualAgentEnabled:
+          type: boolean
+    CreateMessageInput:
+      type: object
+      properties:
+        content:
+          type: string
+          maxLength: 4000
+        authorId:
+          type: string
+          maxLength: 80
+        authorName:
+          type: string
+          maxLength: 80
+        authorAvatarUrl:
+          type: string
+          maxLength: 1000
+        authorRole:
+          type: string
+          enum: [customer, agent, guest]
+        attachments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Attachment"
+        replyToMessageId:
+          type: string
+          maxLength: 80
+    AddParticipantInput:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: string
+          maxLength: 80
+        name:
+          type: string
+          maxLength: 80
+        avatarUrl:
+          type: string
+          maxLength: 1000
+        role:
+          type: string
+          enum: [customer, agent, guest]
+    ToolRequest:
+      type: object
+      properties:
+        _id:
+          type: string
+        botId:
+          type: [string, "null"]
+        inboxId:
+          type: [string, "null"]
+        ticketId:
+          type: string
+        toolId:
+          type: string
+        toolName:
+          type: string
+        reason:
+          type: string
+        input:
+          type: object
+          additionalProperties: true
+        status:
+          type: string
+          enum: [pending, executed, rejected, failed]
+        result:
+          type: [string, "null"]
+        error:
+          type: [string, "null"]
+    CreateTicketResponse:
+      type: object
+      properties:
+        ticket:
+          $ref: "#/components/schemas/Ticket"
+        chatUrl:
+          type: string
+        customerAccessToken:
+          type: string
+        accessExpiresAt:
+          type: string
+    PublicChatTicket:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        workspaceName:
+          type: string
+        workspaceType:
+          type: string
+          enum: [discord, inbox]
+        status:
+          type: string
+          enum: [open, suspended, closed]
+        messageCount:
+          type: integer
+        identity:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            role:
+              type: string
+              enum: [customer, agent, guest]
+    PublicChatSession:
+      type: object
+      properties:
+        ticket:
+          $ref: "#/components/schemas/Ticket"
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatMessage"
+        identity:
+          type: object
+          additionalProperties: true
+        commands:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean

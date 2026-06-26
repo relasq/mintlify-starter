@@ -1,0 +1,121 @@
+---
+title: "Visão geral da API"
+description: "Rotas públicas da Lineup separadas entre Core API, Discord Plugin e chat público."
+---
+
+## Base URLs
+
+<CardGroup cols={3}>
+  <Card title="API pública" icon="server">
+    <code>https://api.lnup.pro</code>
+  </Card>
+  <Card title="Chat público" icon="comments">
+    <code>https://go.lnup.pro</code>
+  </Card>
+  <Card title="Dashboard" icon="gauge">
+    <code>https://lnup.pro</code>
+  </Card>
+</CardGroup>
+
+## Autenticação
+
+Todas as rotas <code>/v1</code> usam token de API da Lineup.
+
+```http
+Authorization: Bearer lup_seu_token
+```
+
+<Warning>
+  O token <code>lup_</code> representa a conta dona do workspace. Ele não é o
+  token do cliente final, não é o Bot Token do Discord e não deve ficar no
+  navegador.
+</Warning>
+
+## Separação das rotas
+
+<Tabs>
+  <Tab title="Core API">
+    Rotas para Inboxes, tickets, mensagens, transcripts e solicitações de
+    ferramentas da IA.
+
+    ```http
+    /v1/inboxes
+    /v1/inboxes/:inboxId/tickets
+    /v1/inboxes/:inboxId/tickets/:ticketId/messages
+    /v1/inboxes/:inboxId/tickets/:ticketId/tool-requests
+    ```
+
+  </Tab>
+  <Tab title="Plugins">
+    Rotas para consultar integra��es conectadas. O Discord aparece em
+    <code>/v1/bots</code> por compatibilidade, mas tickets, mensagens,
+    participantes e ferramentas ficam nas rotas da Inbox.
+
+    ```http
+    /v1/bots
+    ```
+
+  </Tab>
+  <Tab title="Chat público">
+    Rotas usadas pelo frontend do chat. Elas usam cookies e tokens temporários,
+    não token <code>lup_</code>.
+
+    ```http
+    /chat/tickets
+    /chat/:ticketId/session
+    /chat/:ticketId/anonymous
+    /chat/:ticketId/access
+    ```
+
+  </Tab>
+</Tabs>
+
+## Respostas e erros
+
+<AccordionGroup>
+  <Accordion title="200">
+    Operação concluída. A resposta varia por endpoint.
+  </Accordion>
+  <Accordion title="400">
+    Payload inválido, operação não permitida ou estado incompatível.
+  </Accordion>
+  <Accordion title="401">
+    Token ausente, inválido, revogado ou sessão pública expirada.
+  </Accordion>
+  <Accordion title="403">
+    A conta ou pessoa autenticada não tem permissão para a ação.
+  </Accordion>
+  <Accordion title="404">
+    Inbox, plugin, ticket, mensagem ou solicitação não encontrada.
+  </Accordion>
+</AccordionGroup>
+
+## Exemplos rápidos
+
+<CodeGroup>
+
+```bash Listar Inboxes
+curl "https://api.lnup.pro/v1/inboxes" \
+  -H "Authorization: Bearer lup_seu_token"
+```
+
+```bash Criar ticket
+curl -X POST "https://api.lnup.pro/v1/inboxes/inbox_123/tickets" \
+  -H "Authorization: Bearer lup_seu_token" \
+  -H "Content-Type: application/json" \
+  -d '{"customerName":"Maria","subject":"Ajuda","reason":"Preciso de suporte."}'
+```
+
+```bash Enviar mensagem
+curl -X POST "https://api.lnup.pro/v1/inboxes/inbox_123/tickets/ticket_123/messages" \
+  -H "Authorization: Bearer lup_seu_token" \
+  -H "Content-Type: application/json" \
+  -d '{"authorRole":"agent","authorName":"Equipe","content":"Vamos verificar."}'
+```
+
+</CodeGroup>
+
+<Tip>
+  Abaixo, o Mintlify gera a referência interativa usando o arquivo
+  <code>api-reference/openapi.yaml</code>.
+</Tip>

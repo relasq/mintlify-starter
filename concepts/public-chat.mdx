@@ -1,0 +1,79 @@
+---
+title: "Chat público"
+description: "Como visitantes e clientes acessam tickets em go.lnup.pro."
+---
+
+O chat público é a experiência do cliente final. Ele roda no frontend da
+Lineup, normalmente em <code>https://go.lnup.pro</code>, e conversa com a API em
+tempo real.
+
+## Tipos de entrada
+
+<Tabs>
+  <Tab title="Link com access">
+    Tickets criados pela API podem retornar uma URL com token temporário:
+
+    ```txt
+    https://go.lnup.pro/chat/ticket_id?access=token_temporario
+    ```
+
+    Quando o cliente abre o link, a Lineup troca esse token por cookies seguros
+    daquele ticket.
+
+  </Tab>
+  <Tab title="Login Discord">
+    Se o usuário escolher login, a identidade da conta entra no ticket e pode
+    ser reutilizada em outros atendimentos.
+  </Tab>
+  <Tab title="Anônimo">
+    Quem veio de um ticket pode continuar anônimo. A Lineup pede um apelido e
+    salva essa identidade por ticket neste navegador.
+  </Tab>
+</Tabs>
+
+## Rotas do runtime público
+
+Estas rotas são usadas pelo frontend do chat e não são a API pública
+servidor-servidor.
+
+<CardGroup cols={2}>
+  <Card title="GET /chat/tickets" icon="list">
+    Lista tickets salvos neste navegador para a home do <code>go.lnup.pro</code>
+    .
+  </Card>
+  <Card title="GET /chat/:ticketId/session" icon="key">
+    Carrega sessão, ticket, mensagens, comandos e identidade atual.
+  </Card>
+  <Card title="POST /chat/:ticketId/anonymous" icon="user-secret">
+    Cria uma sessão anônima com apelido para aquele ticket.
+  </Card>
+  <Card title="POST /chat/:ticketId/access" icon="lock">
+    Resgata o token temporário retornado pela criação de ticket da Inbox.
+  </Card>
+</CardGroup>
+
+<Info>
+  Para integrações do seu backend, prefira sempre as rotas <code>/v1</code>. As
+  rotas <code>/chat</code> existem para a experiência pública do visitante.
+</Info>
+
+## Estados que bloqueiam envio
+
+<AccordionGroup>
+  <Accordion title="Ticket suspenso">
+    Clientes e visitantes não enviam mensagens. Atendentes com permissão ainda
+    conseguem responder ou reabrir.
+  </Accordion>
+  <Accordion title="Ticket arquivado ou resolvido">
+    O chat deixa de aceitar novas mensagens do cliente. A equipe pode consultar
+    o histórico.
+  </Accordion>
+  <Accordion title="Ticket privado">
+    Novas pessoas não entram pelo link. Participantes existentes e equipe ainda
+    conseguem acessar conforme permissões.
+  </Accordion>
+  <Accordion title="Ticket excluído">
+    O link mostra a tela de ticket removido e o atendimento desaparece das
+    listas.
+  </Accordion>
+</AccordionGroup>

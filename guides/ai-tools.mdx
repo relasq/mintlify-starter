@@ -1,0 +1,89 @@
+---
+title: "IA e ferramentas"
+description: "Configure o atendente virtual para consultar APIs externas com segurança."
+---
+
+A IA da Lineup responde usando documentação, prompt, histórico recente e, quando
+necessário, ferramentas configuradas na Inbox. Plugins como Discord apenas
+adicionam origens de ticket; a inteligência e as ferramentas continuam no
+workspace principal.
+
+## Modos de resposta
+
+<Tabs>
+  <Tab title="Conservador">
+    Responde apenas quando a resposta pode ser encontrada com certeza nas
+    fontes. Se não conseguir, avisa que encaminhou o caso para a equipe.
+  </Tab>
+  <Tab title="Equilibrado">
+    Respostas fundamentadas, mas sem exigir verificação absoluta de todas as
+    informações.
+  </Tab>
+  <Tab title="Criativo">
+    Pode responder sem usar fontes. Não recomendado para suporte crítico.
+  </Tab>
+</Tabs>
+
+## Modos de ferramenta
+
+<CardGroup cols={2}>
+  <Card title="Aprovar por mim" icon="hand">
+    A IA cria uma solicitação de ferramenta e qualquer atendente presente no
+    chat pode aprovar ou rejeitar.
+  </Card>
+  <Card title="Acesso completo" icon="bolt">
+    A IA executa ferramentas permitidas sem pedir aprovação antes.
+  </Card>
+</CardGroup>
+
+<Warning>
+  Ferramentas que alteram dados, cobram clientes, fazem reembolso ou expõem
+  informação sensível devem começar em modo manual.
+</Warning>
+
+## Dados seguros pedidos ao cliente
+
+Quando uma ferramenta precisa de credencial ou identificador que só o cliente
+tem, a IA pode abrir um campo seguro no próprio balão de mensagem. O dado é
+criptografado e fica salvo apenas naquele ticket.
+
+<Steps>
+  <Step title="A IA identifica a falta do dado">
+    Exemplo: a ferramenta precisa de um token <code>lup_</code>, CPF, código de
+    pedido ou e-mail.
+  </Step>
+  <Step title="O chat mostra um input seguro">
+    O cliente envia o dado sem expor o valor no histórico público do chat.
+  </Step>
+  <Step title="A ferramenta roda com o dado salvo">
+    A IA usa o valor criptografado somente naquele ticket.
+  </Step>
+  <Step title="A resposta volta ao cliente">
+    A IA responde sem mencionar detalhes internos de modelo, provedor ou
+    infraestrutura.
+  </Step>
+</Steps>
+
+## Exemplo de ferramenta
+
+```json
+{
+  "enabled": true,
+  "name": "Buscar pedido",
+  "description": "Consulta o status de um pedido pelo ID informado pelo cliente.",
+  "method": "GET",
+  "url": "https://api.sualoja.com/orders/{{orderId}}",
+  "inputSchema": "{\"orderId\":\"string\"}",
+  "headers": [
+    {
+      "key": "Authorization",
+      "value": "Bearer {{secure.shopToken}}"
+    }
+  ]
+}
+```
+
+<Tip>
+  Use variáveis como <code>{{ orderId }}</code> na URL, headers ou body. A IA
+  extrai valores da conversa e pede dados seguros quando faltar algo.
+</Tip>
